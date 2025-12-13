@@ -28,7 +28,7 @@ Session(app)
 db = SQL("sqlite:///finance.db")
 
 # CORS is technically not needed if using Proxy, but keeping it is safe.
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://127.0.0.1:5173"])
+CORS(app, supports_credentials=True, origins=["https://financeapp-nine-phi.vercel.app"])
 
 @app.after_request
 def after_request(response):
