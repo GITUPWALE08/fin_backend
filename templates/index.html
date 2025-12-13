@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="text-start mb-4">
+        <h1 class="fw-bold">Your Portfolio</h1>
+        <p class="text-muted">Track your assets, monitor your performance, and stay informed.</p>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Portfolio Value</h6>
+                    <h2 class="fw-bold text-primary" id="cap_n_total">Loading...</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Capital</h6>
+                    <h3 class="fw-semibold">${{ capital }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">In Use</h6>
+                    <h3 class="fw-semibold text-warning" id="in_use">Loading...</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PORTFOLIO TABLE -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold">Holdings</h4>
+                <a href="/buy" class="btn btn-primary btn-sm">Buy More</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Company</th>
+                            <th>Shares</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for index in users %}
+                            <tr class="this_row">
+                                <td class="symbol fw-semibold" value="{{index.stock}}">{{ index.stock }}</td>
+                                <td>{{ index.name }}</td>
+                                <td class="shares">{{ index.shares }}</td>
+                                <td class="price text-primary">Loading...</td>
+                                <td class="total fw-semibold">Loading...</td>
+                                <td><a href="/sell" class="btn btn-outline-danger btn-sm">Sell</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

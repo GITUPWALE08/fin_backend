@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+    <div class="section">
+
+                <h2>history</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stock (SYMBOL)</th>
+                            <th>shares</th>
+                            <th>Price (bought or sold)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- TODO: Loop through the database entries to display them in this table -->
+                        {% for index in history_data %}
+                            <tr class="{{index.buy}}">
+                                <td>{{index.stock}} ({{index.stock}})</td>
+                                <td>{{index.shares}}</td>
+                                <td>{{index.price}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+{% endblock %}
