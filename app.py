@@ -12,14 +12,18 @@ from helpers import login_required, lookup, usd
 # Configure application
 app = Flask(__name__)
 
+FRONTEND_URL = "https://financeapp-nine-phi.vercel.app"
+
 # --- CONFIGURATION ---
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["SECRET_KEY"] = "your_secret_key"
 
 # Security settings for Localhost
 # "Lax" is usually best for Proxy/Localhost development
-app.config["SESSION_COOKIE_SECURE"] = False 
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 
 Session(app)
@@ -28,7 +32,7 @@ Session(app)
 db = SQL("sqlite:///finance.db")
 
 # CORS is technically not needed if using Proxy, but keeping it is safe.
-CORS(app, supports_credentials=True, origins=["https://financeapp-nine-phi.vercel.app"])
+CORS(app, supports_credentials=True, origins=[FRONTEND_URL, "http://localhost:5173"])
 
 @app.after_request
 def after_request(response):
