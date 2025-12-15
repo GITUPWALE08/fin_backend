@@ -16,11 +16,10 @@ FRONTEND_URL = "https://finance-three-sepia.vercel.app"
 
 # --- CONFIGURATION ---
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+# app.config["SESSION_TYPE"] = "filesystem"
 app.config["SECRET_KEY"] = "your_secret_key"
 
-# Security settings for Localhost
-# "Lax" is usually best for Proxy/Localhost development
+# Security settings for production
 
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
