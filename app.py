@@ -12,7 +12,7 @@ from helpers import login_required, lookup, usd
 # Configure application
 app = Flask(__name__)
 
-FRONTEND_URL = "https://financeapp-nine-phi.vercel.app"
+FRONTEND_URL = "https://finance-three-sepia.vercel.app"
 
 # --- CONFIGURATION ---
 app.config["SESSION_PERMANENT"] = False
