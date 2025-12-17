@@ -21,8 +21,8 @@ app.config["SECRET_KEY"] = "your_secret_key"
 
 # Security settings for production
 
-app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = False
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 
 # Session(app)
