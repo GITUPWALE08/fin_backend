@@ -339,6 +339,52 @@ def api_price():
     
     return jsonify({"price": look_up["price"], "name": look_up["name"]})
 
+@app.route("/init_db")
+def init_db():
+    try:
+        # 1. USERS TABLE
+        # Uses 'SERIAL' for auto-incrementing IDs in Postgres
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username TEXT NOT NULL UNIQUE,
+                hash TEXT NOT NULL,
+                cash NUMERIC NOT NULL DEFAULT 10000.00 CHECK (cash >= 0)
+            );
+        """)
+
+        # 2. TRANSACTIONS TABLE (Optimized: Combines history, buy, and sell)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS transactions (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                symbol TEXT NOT NULL,
+                shares NUMERIC NOT NULL CHECK (shares > 0),
+                price NUMERIC NOT NULL,
+                type TEXT NOT NULL CHECK (type IN ('buy', 'sell')), 
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+
+        # 3. PORTFOLIO TABLE (Tracks current holdings)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS portfolio (
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                symbol TEXT NOT NULL,
+                shares NUMERIC NOT NULL CHECK (shares >= 0),
+                PRIMARY KEY (user_id, symbol)
+            );
+        """)
+
+        # 4. INDEXES (For speed)
+        # Note: We use 'CREATE INDEX IF NOT EXISTS' to avoid errors if run twice
+        db.execute("CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);")
+        db.execute("CREATE INDEX IF NOT EXISTS idx_portfolio_user ON portfolio(user_id);")
+
+        return "Database initialized successfully with Optimized Schema!", 200
+
+    except Exception as e:
+        return f"An error occurred: {e}", 500
 
 if __name__ == "__main__":
     app.run(debug=True)
