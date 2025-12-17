@@ -27,8 +27,19 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 
 # Session(app)
 
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///finance.db")
+
+# --- DATABASE CONFIGURATION ---
+# Check if DATABASE_URL exists (Production)
+uri = os.environ.get("DATABASE_URL")
+
+if uri:
+    # Fix for Render's URL format (Postgres requires 'postgresql://', Render sometimes gives 'postgres://')
+    if uri.startswith("postgres://"):
+        uri = uri.replace("postgres://", "postgresql://", 1)
+    db = SQL(uri)
+else:
+    # Fallback for Local Development
+    db = SQL("sqlite:///finance.db")
 
 # CORS is technically not needed if using Proxy, but keeping it is safe.
 CORS(app, supports_credentials=True, origins=[FRONTEND_URL, "http://localhost:5173"])
