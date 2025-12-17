@@ -146,6 +146,132 @@ def buy():
 
     return jsonify({"message": "Purchase completed"}), 200
 
+# @app.route("/buy", methods=["POST"])
+# @login_required
+# def buy():
+#     """Buy shares of stock"""
+#     # FIX: Use get_json() instead of form.get()
+#     data = request.get_json()
+#     if not data:
+#         return jsonify({"error": "Invalid JSON data"}), 400
+
+#     symbol = data.get("symbol", "").upper()
+#     password = data.get("password")
+    
+#     # Validation
+#     look_up = lookup(symbol)
+#     if not symbol or not look_up:
+#         return jsonify({"error": "Invalid symbol"}), 400
+#     elif not password:
+#         return jsonify({"error": "Must enter password"}), 400
+    
+#     try:
+#         shares = float(data.get("shares"))
+#     except (ValueError, TypeError):
+#         return jsonify({"error": "Invalid shares"}), 400
+
+#     if shares <= 0:
+#         return jsonify({"error": "Invalid shares"}), 400
+    
+#     # Get user
+#     user_details = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+#     if not user_details:
+#         return jsonify({"error": "Not logged in"}), 403
+    
+#     if not check_password_hash(user_details[0]["hash"], password):
+#         return jsonify({"error": "Incorrect password"}), 403
+    
+#     amount = look_up["price"] * shares
+#     if user_details[0]["cash"] < amount:
+#         return jsonify({"error": "Insufficient balance"}), 400
+
+#     t = time.localtime()
+#     current_time = time.strftime("%d/%m/%y %H:%M:%S", t)
+
+#     try:
+#         # Record purchase
+#         db.execute("INSERT INTO transactions (user_id, symbol, shares, price, type, time_stamp) VALUES (?, ?, ?, ?, ?, ?);", 
+#                    user_details[0]["id"], symbol, shares, look_up["price"], 'buy', current_time)
+        
+#         # db.execute("INSERT INTO purchases (user_id, stock, shares, price, buy_time) VALUES (?, ?, ?, ?, ?);", 
+#         #            user_details[0]["id"], symbol, shares, look_up["price"], current_time)
+        
+#         # # Record history
+#         # db.execute("INSERT INTO history (user_id, stock, shares, price, buy, time) VALUES (?, ?, ?, ?, ?, ?);", 
+#         #            user_details[0]["id"], symbol, shares, look_up["price"], 1, current_time)
+        
+#         # Update cash
+#         db.execute("UPDATE users SET cash = cash - ? WHERE id = ?;", amount, user_details[0]["id"])
+        
+#         # Update portfolio
+#         db.execute("INSERT INTO portfolio (user_id, symbol, shares) VALUES (?, ?, ?) ON CONFLICT(user_id, symbol) DO UPDATE SET shares = shares + excluded.shares;", 
+#                    session["user_id"], symbol, shares)
+        
+#     except ValueError:
+#         return jsonify({"error": "Transaction failed"}), 400
+
+#     return jsonify({"message": "Purchase completed"}), 200
+
+# @app.route("/sell", methods=["POST"])
+# @login_required
+# def sell():
+#     """Sell shares of stock"""
+#     # FIX: Use get_json()
+#     data = request.get_json()
+#     if not data:
+#          return jsonify({"error": "Invalid JSON"}), 400
+
+#     symbol = data.get("symbol", "").upper()
+#     look_up = lookup(symbol)
+    
+#     if not symbol or not look_up:
+#         return jsonify({"error": "Invalid Symbol"}), 400
+    
+#     try:
+#         shares = float(data.get("shares"))
+#     except (ValueError, TypeError):
+#         return jsonify({"error": "Invalid shares"}), 400
+        
+#     if shares <= 0:
+#         return jsonify({"error": "Invalid shares"}), 400
+    
+#     # FIX: LOGIC ERROR - Must filter by STOCK SYMBOL as well
+#     user_stock = db.execute("SELECT * FROM portfolio WHERE user_id = ? AND symbol = ?", session["user_id"], symbol)
+    
+#     if not user_stock:
+#         return jsonify({"error": "You do not own this stock"}), 400
+    
+#     if user_stock[0]["shares"] < shares:
+#         return jsonify({"error": "Insufficient share balance"}), 400
+    
+#     amount = look_up["price"] * shares
+#     t = time.localtime()
+#     current_time = time.strftime("%d/%m/%y %H:%M:%S", t)
+
+#     try:
+#         # Record sale
+#         # db.execute("INSERT INTO (user_id, stock, shares, price, sell_time) VALUES (?, ?, ?, ?, ?);", 
+#         #            session["user_id"], symbol, shares, look_up["price"], current_time)
+        
+#         # Record history
+#         db.execute("INSERT INTO transaction (user_id, symbol, shares, price, type, timestamp) VALUES (?, ?, ?, ?, ?, ?);", 
+#                    session["user_id"], symbol, shares, look_up["price"], 'sell', current_time)
+        
+#         # Update cash
+#         db.execute("UPDATE users SET cash = cash + ? WHERE id = ?;", amount, session["user_id"])
+        
+#         # Update portfolio
+#         db.execute("UPDATE portfolio SET shares = shares - ? WHERE user_id = ? AND symbol = ?", 
+#                    shares, session["user_id"], symbol)
+                   
+#         # Optional: Delete row if shares == 0
+#         db.execute("DELETE FROM portfolio WHERE user_id = ? AND symbol = ? AND shares = 0", session["user_id"], symbol)
+        
+#     except ValueError:
+#         return jsonify({"error": "Transaction failed"}), 400
+
+#     return jsonify({"message": "Sold successfully"}), 200
+
 @app.route("/sell", methods=["POST"])
 @login_required
 def sell():
@@ -208,6 +334,12 @@ def history():
     user_data = db.execute("SELECT symbol, shares, price, type, timestamp as time FROM transactions WHERE user_id = ? ORDER BY timestamp DESC;", session["user_id"])
     return jsonify({"history": user_data})
 
+# @app.route("/history")
+# @login_required
+# def history():
+#     """Show history of transactions"""
+#     user_data = db.execute("SELECT * FROM transactions WHERE user_id = ? ORDER BY time DESC;", session["user_id"])
+#     return jsonify({"history": user_data})
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -219,7 +351,7 @@ def login():
         if not data or not data.get("username") or not data.get("password"):
             return jsonify({"error": "Missing credentials"}), 400
 
-        rows = db.execute("SELECT * FROM users WHERE username = ?", data.get("username").lower())
+        rows = db.execute("SELECT * FROM users WHERE username = ?", data.get("username"))
 
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], data.get("password")):
             return jsonify({"error": "Invalid username and/or password"}), 400
@@ -272,7 +404,7 @@ def register():
     if not data:
         return jsonify({"error": "Invalid JSON"}), 400
 
-    username = data.get("username").lower()
+    username = data.get("username")
     password = data.get("password")
     confirm = data.get("confirmation") # Ensure your React form sends this key!
 
@@ -297,7 +429,7 @@ def change_password():
     if not data:
         return jsonify({"error": "Invalid JSON"}), 400
 
-    username = data.get("username").lower()
+    username = data.get("username")
     last_password = data.get("last_password")
     recent_password = data.get("recent_password")
     confirm_recent = data.get("confirm_password")
