@@ -15,16 +15,15 @@ app = Flask(__name__)
 FRONTEND_URL = "https://finance-three-sepia.vercel.app"
 
 # --- CONFIGURATION ---
-app.config["SESSION_PERMANENT"] = True
-app.config["SESSION_TYPE"] = "null"
-app.config["SECRET_KEY"] = "your_secret_key"
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SECRET_KEY"] = "server_secret_key"
 
 # Security settings for production
 
-app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = False
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_DOMAIN"] = None
 
 # Session(app)
 
