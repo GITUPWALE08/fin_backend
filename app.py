@@ -75,7 +75,7 @@ else:
     db = SQL("sqlite:///finance.db")
 
 # CORS is technically not needed if using Proxy, but keeping it is safe.
-CORS(app, supports_credentials=True, origins=[FRONTEND_URL, "http://localhost:5173"])
+#CORS(app, supports_credentials=True, origins=[FRONTEND_URL, "http://localhost:5173"])
 
 @app.after_request
 def after_request(response):
