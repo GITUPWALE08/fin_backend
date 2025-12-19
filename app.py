@@ -5,6 +5,7 @@ from cs50 import SQL
 from flask import Flask, session, jsonify, request
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix 
 from flask_cors import CORS
 from config import Config
 from helpers import login_required, lookup, usd
@@ -14,9 +15,12 @@ app = Flask(__name__)
 
 FRONTEND_URL = "https://finance-three-sepia.vercel.app"
 
+# This tells Flask: "I am behind a proxy (Vercel). Trust that the connection is Secure (HTTPS)."
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
 # --- CONFIGURATION ---
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_PERMANENT"] = True
+app.config["SESSION_TYPE"] = "null"
 app.config["SECRET_KEY"] = "server_secret_key"
 
 # Security settings for production
