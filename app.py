@@ -93,7 +93,6 @@ def index():
         # Get stocks
         users_index = db.execute("SELECT * FROM portfolio WHERE user_id=? ORDER BY shares DESC;", session["user_id"])
         if not users_index:
-            session.clear() # Clear the dead session
             return jsonify({"error": "Session expired (Server Restart). Please login again."}), 403
         
         # Get cash
