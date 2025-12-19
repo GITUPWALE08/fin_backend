@@ -13,21 +13,50 @@ from helpers import login_required, lookup, usd
 # Configure application
 app = Flask(__name__)
 
-FRONTEND_URL = "https://finance-three-sepia.vercel.app"
-
-# This tells Flask: "I am behind a proxy (Vercel). Trust that the connection is Secure (HTTPS)."
+# --- 1. PROXY FIX (CRITICAL) ---
+# This allows Flask to trust that Vercel is handling HTTPS
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
-# --- CONFIGURATION ---
+# --- 2. SESSION CONFIGURATION ---
+# Use a static key so sessions survive restarts
+app.config["SECRET_KEY"] = "super_secret_static_key_12345"
 app.config["SESSION_PERMANENT"] = True
-app.config["SESSION_TYPE"] = "null"
-app.config["SECRET_KEY"] = "server_secret_key"
 
-# Security settings for production
+# IMPORTANT: Remove 'SESSION_TYPE' if you deleted 'Session(app)'
+# If you are using default Flask sessions, you do NOT need this line.
 
+# --- 3. COOKIE SETTINGS (The "Safe Mode") ---
+# We use "None" because it works for BOTH Direct and Proxy connections.
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
+
+# CRITICAL: Do NOT set SESSION_COOKIE_DOMAIN. 
+# By leaving it empty, the cookie automatically belongs to "finance-three-sepia.vercel.app"
+# app.config["SESSION_COOKIE_DOMAIN"] = None  <-- Default is None, so just don't set it.
+
+# --- 4. CORS ---
+# Even with Proxy, keep this for safety.
+CORS(app, 
+     supports_credentials=True, 
+     origins=["https://finance-three-sepia.vercel.app", "http://localhost:5173"]
+)
+
+# FRONTEND_URL = "https://finance-three-sepia.vercel.app"
+
+# # This tells Flask: "I am behind a proxy (Vercel). Trust that the connection is Secure (HTTPS)."
+# app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
+# # --- CONFIGURATION ---
+# app.config["SESSION_PERMANENT"] = True
+# app.config["SECRET_KEY"] = "server_secret_key"
+
+# # Security settings for production
+
+# app.config["SESSION_COOKIE_SECURE"] = True
+# app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+# app.config["SESSION_COOKIE_HTTPONLY"] = True
+
 
 # Session(app)
 
