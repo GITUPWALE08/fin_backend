@@ -13,23 +13,23 @@ from helpers import login_required, lookup, usd
 # Configure application
 app = Flask(__name__)
 
-# --- 1. PROXY FIX (CRITICAL) ---
-# This allows Flask to trust that Vercel is handling HTTPS
+# 1. FIX HTTPS HEADERS
+# This tells Flask "Trust Vercel" so it knows we are on HTTPS
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
-# --- 2. SESSION CONFIGURATION ---
-# Use a static key so sessions survive restarts
+# 2. SESSION CONFIG
 app.config["SECRET_KEY"] = "super_secret_static_key_12345"
 app.config["SESSION_PERMANENT"] = True
+app.config["SESSION_TYPE"] = "null"  # Use default cookies
 
-# IMPORTANT: Remove 'SESSION_TYPE' if you deleted 'Session(app)'
-# If you are using default Flask sessions, you do NOT need this line.
-
-# --- 3. COOKIE SETTINGS (The "Safe Mode") ---
-# We use "None" because it works for BOTH Direct and Proxy connections.
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
-app.config["SESSION_COOKIE_SECURE"] = True
+# 3. COOKIE SETTINGS (Adjusted for Proxy)
+# Switch to 'Lax' because Vercel Proxy makes us "Same Site"
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = True    # Required for Vercel HTTPS
 app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_DOMAIN"] = None    # CRITICAL: Let browser assign domain
+app.config["SESSION_COOKIE_PATH"] = "/"       # CRITIC
+
 
 # CRITICAL: Do NOT set SESSION_COOKIE_DOMAIN. 
 # By leaving it empty, the cookie automatically belongs to "finance-three-sepia.vercel.app"
