@@ -171,7 +171,7 @@ def buy():
             INSERT INTO portfolio (user_id, symbol, shares) 
             VALUES (?, ?, ?) 
             ON CONFLICT(user_id, symbol) 
-            DO UPDATE SET shares = shares + excluded.shares;
+            DO UPDATE SET shares = portfolio.shares + excluded.shares;
         """, session["user_id"], symbol, shares)
         
     except ValueError:
